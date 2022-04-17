@@ -30,10 +30,18 @@ app.put('/tasklists/:tasklistid', (req,res)=>{
         
 })
 app.delete('/tasklists/:tasklistid', (req,res)=>{
-    tasklist.findByIdAndDelete({_id:req.params.tasklistid}).then((list)=>{res.status(200).send(list)}).catch((error)=>{
+const deleteAllTasksFromthistasklist=(tasklist)=>{
+    task.deleteMany({_tasklistid:req.params.tasklistid}).then(()=>{return tasklist}).catch((error)=>
+    console.log(error))
+}
+
+   const statustasklist= tasklist.findByIdAndDelete({_id:req.params.tasklistid}).then((list)=>{
+        deleteAllTasksFromthistasklist(tasklist)
+     
+    }).catch((error)=>{
         res.status(500)
         console.log(error)})
-        
+        res.status(200).send(statustasklist)   
 })
 app.patch('/tasklists/:tasklistid', (req,res)=>{
     tasklist.findOneAndUpdate({_id:req.params.tasklistid},
