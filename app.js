@@ -3,13 +3,20 @@ const app=express();
 const mongoose=require('./database/mongoose');
 const tasklist=require('./database/models/taskList');
 const task=require('./database/models/task');
-
-app.use((req, res, next) => {
-    res.append('Access-Control-Allow-Origin', ['http://localhost:4200']);
-    res.append('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
-    res.append('Access-Control-Allow-Headers', 'Content-Type');
+var cors = require('cors')
+app.use(cors()) 
+app.use(function(req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE");
+    res.header("Access-Control-Allow-Headers", "Content-Type");
     next();
-});
+  });
+// app.use((req, res, next) => {
+//     res.append('Access-Control-Allow-Origin', '*');
+//     res.append('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
+//     res.append('Access-Control-Allow-Headers', 'Content-Type');
+//     next();
+// });
 app.use(express.json());
 app.get('/tasklists', (req,res)=>{
     tasklist.find({}).then((list)=>{res.status(201).send(list)}).catch((error)=>{
@@ -84,15 +91,19 @@ app.get('/tasklists/:tasklistid/tasks/:taskid', (req,res)=>{
 // get 1 task from particullar tasklist
 // patch task in particular tasklist
 app.patch('/tasklists/:tasklistid/tasks/:taskid', (req,res)=>{
-    task.findOneAndUpdate({_tasklistid:req.params.tasklistid,id:req.params.taskid},
-        {$set:req.body}).then((list)=>{res.status(200).send(list)}).catch((error)=>{
+    console.log(req.params)
+    
+    task.findByIdAndUpdate({_tasklistid:req.params.tasklistid,_id:req.params.taskid},
+        {$set:req.body}).then((list)=>{
+         
+            res.status(200).send(list)}).catch((error)=>{
         res.status(500)
         console.log(error)})
     })
 // creat task in particular tasklist
 // delete task in particular tasklist
 app.delete('/tasklists/:tasklistid/tasks/:taskid', (req,res)=>{
-    task.findOneAndDelete({_tasklistid:req.params.tasklistid,id:req.params.taskid}).then((list)=>{res.status(200).send(list)}).catch((error)=>{
+    task.findOneAndDelete({_tasklistid:req.params.tasklistid,_id:req.params.taskid}).then((list)=>{res.status(200).send(list)}).catch((error)=>{
         res.status(500)
         console.log(error)})
     })
